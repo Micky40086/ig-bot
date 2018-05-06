@@ -1,4 +1,4 @@
-const functions = require('firebase-functions');
+const functions = require('firebase-functions')
 const admin = require('firebase-admin')
 admin.initializeApp()
 
@@ -7,18 +7,18 @@ const getApp = function(appId) {
     return admin.firestore().collection('users').doc(appId).get()
 }
 
-let chatbot = require('./bot');
-let crawler = require('./crawl');
+let chatbot = require('./bot')
+let crawler = require('./crawl')
 
 const sub_items = admin.firestore().collection('sub_items')
 
 exports.checkIg = functions.https.onRequest((req, res) => {
-    const dateTime = Date.now();
-    const timestamp = Math.floor(dateTime / 1000);
+    const dateTime = Date.now()
+    const timestamp = Math.floor(dateTime / 1000)
     crawler.getNewPost('marcellasne_',timestamp)
     .then((messages) => {
         var promises = messages.map( function(message) {
-            return chatbot.sendMessage("U5ae6cc0b263a5fd8b5ef8fc7f2205e57", message);
+            return chatbot.sendMessage("U5ae6cc0b263a5fd8b5ef8fc7f2205e57", message)
         })
         Promise.all(promises).then((results) => {
             res.status(200).send('HEHEHE')
@@ -31,29 +31,30 @@ exports.checkIg = functions.https.onRequest((req, res) => {
 })
 
 exports.sendNewPost = functions.https.onRequest((req, res) => {
-    const dateTime = Date.now();
-    const timestamp = Math.floor(dateTime / 1000);
+    const dateTime = Date.now()
+    const timestamp = Math.floor(dateTime / 1000)
     sub_items.get().then(snapShot => {
         if (!snapShot.empty) {
             let items_promises = []
             snapShot.forEach(doc => {
+                let item = doc.data()
                 items_promises.push(
-                    crawler.getNewPost(doc.data().account,timestamp)
+                    crawler.getNewPost(item.account,timestamp)
                     .then((messages) => {
                         if (messages.length) {
-                            let promises = [];
+                            let promises = []
                             messages.forEach(function(message) {
-                                doc.data().users.forEach((user) => {
+                                item.users.forEach((user) => {
                                     promises.push(chatbot.sendMessage(user, message))
                                 })
                             })
                             Promise.all(promises).then(() => {
-                                console.log(doc.data().account, 'finish')
+                                console.log(item.account, 'finish')
                             }).catch(() => {
-                                console.log(doc.data().account, 'oh no')
+                                console.log(item.account, 'oh no')
                             })
                         } else {
-                            console.log(doc.data().account, 'No new Posts')
+                            console.log(item.account, 'No new Posts')
                         }
                     }).catch((error) => {
                         console.log(error)
@@ -75,9 +76,9 @@ exports.sendNewPost = functions.https.onRequest((req, res) => {
 
 exports.addSubscribe = functions.https.onRequest((req, res) => {
     if (req.body.sourceId === undefined) {
-        res.status(400).send({ message: 'No sourceId defined!' });
+        res.status(400).send({ message: 'No sourceId defined!' })
     } else if (req.body.subAccount === undefined) {
-        res.status(400).send({ message: 'No subAccount defined!' });
+        res.status(400).send({ message: 'No subAccount defined!' })
     } else {
         sub_items.where("account", "==", req.body.subAccount).get()
         .then(snapShot => {
@@ -85,17 +86,17 @@ exports.addSubscribe = functions.https.onRequest((req, res) => {
                 if (!snapShot.empty) {
                     snapShot.forEach(doc => {
                         if (doc.data().users.includes(req.body.sourceId)) {
-                            resolveParam("you are already subscribe " + req.body.subAccount);
+                            resolveParam("you are already subscribe " + req.body.subAccount)
                         } else {
                             temp_array = doc.data().users
                             temp_array.push(req.body.sourceId)
                             sub_items.doc(doc.id).update({ users: temp_array })
                             .then(function(docRef) {
-                                resolveParam("subscribe " + req.body.subAccount + " success");
+                                resolveParam("subscribe " + req.body.subAccount + " success")
                             })
                             .catch(function(error) {
-                                rejectParam(error);
-                            });
+                                rejectParam(error)
+                            })
                         }
                     })
                 } else {
@@ -104,16 +105,16 @@ exports.addSubscribe = functions.https.onRequest((req, res) => {
                         users: [ req.body.sourceId ]
                     })
                     .then(function(docRef) {
-                        resolveParam("sub_items written with ID " + docRef.id);
+                        resolveParam("sub_items written with ID " + docRef.id)
                     })
                     .catch(function(error) {
-                        rejectParam(error);
-                    });
+                        rejectParam(error)
+                    })
                 }
             }).then((return_message) => {
                 res.status(200).send({ message: return_message })
             }).catch((error) => {
-                res.status(200).send({ message: error })
+                res.status(200).send({ message: error })    
             })
         }).catch(error => {
             res.status(500).send(error)
