@@ -88,7 +88,7 @@ function getScriptJson(url) {
             //console.log('body:', body) // Print the HTML for the Google homepage.
             let $ = cheerio.load(body)
             if (response.statusCode == 200) {
-                resolveParam(JSON.parse($('script').get()[2].children[0].data.substring($('script').get()[2].children[0].data.indexOf('{'),$('script').get()[2].children[0].data.length - 1)))
+                resolveParam(JSON.parse($('script').get()[3].children[0].data.substring($('script').get()[3].children[0].data.indexOf('{'),$('script').get()[3].children[0].data.length - 1)))
             } else {
                 rejectParam(new Error('request error!'))
             }
