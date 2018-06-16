@@ -30,6 +30,26 @@ exports.checkIg = functions.https.onRequest((req, res) => {
     })
 })
 
+exports.sendPttMessage = functions.https.onRequest((req, res) => {
+    // const message = {
+    //     type: 'text',
+    //     text: '@恩麟  1g脫飯，可恥'
+    // }
+    const dateTime = Date.now()
+    const timestamp = Math.floor(dateTime / 1000)
+    crawler.getPttNewPost("CodeJob", timestamp)
+    .then((list) => {
+        console.log(list)
+        list.forEach(function(item) {
+            console.log(item)
+            chatbot.sendMessage('C7b6758598d699095093d3a4992062aa9', { type: 'text', text: `${item.title} \n https://www.ptt.cc${item.code}` })
+        })
+        res.status(200).send('HEHEHE')
+    }).catch((error) => {
+        res.status(500).send(error)
+    })
+})
+
 exports.sendNewPost = functions.https.onRequest((req, res) => {
     const dateTime = Date.now()
     const timestamp = Math.floor(dateTime / 1000)
