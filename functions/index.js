@@ -31,10 +31,6 @@ exports.checkIg = functions.https.onRequest((req, res) => {
 })
 
 exports.sendPttMessage = functions.https.onRequest((req, res) => {
-    // const message = {
-    //     type: 'text',
-    //     text: '@恩麟  1g脫飯，可恥'
-    // }
     const dateTime = Date.now()
     const timestamp = Math.floor(dateTime / 1000)
     crawler.getPttNewPost("CodeJob", timestamp)

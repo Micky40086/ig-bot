@@ -33,12 +33,12 @@ exports.getNewPost = function(account,timestamp) {
 
 exports.getPttNewPost = function(area,timestamp) {
     return new Promise(function(resolveParam, rejectParam) {
-        const data = getHtml(`https://www.ptt.cc/bbs/${area}/index.html`)
+        getHtml(`https://www.ptt.cc/bbs/${area}/index.html`)
         .then((res) => {
             var newPosts = []
             res.forEach(function(element){
                 let arr = element.code.split('/')
-                if (timestamp - 1500 < parseInt(arr[arr.length-1].split('.')[1])) {
+                if (timestamp - 1800 < parseInt(arr[arr.length-1].split('.')[1])) {
                     newPosts.push(element)
                 }
             })
@@ -52,12 +52,7 @@ exports.getPttNewPost = function(area,timestamp) {
 function getHtml(url) {
     return new Promise(function(resolveParam, rejectParam) {
         request(url, function (error, response, body) {
-            //console.log('error:', error) // Print the error if one occurred
-            //console.log('statusCode:', response && response.statusCode) // Print the response status code if a response was received
-            //console.log('body:', body) // Print the HTML for the Google homepage.
             let $ = cheerio.load(body)
-            //console.log($('.r-ent .title a'))
-            
             if (response.statusCode == 200) {
                 var result = []
                 $('.r-ent .title a').each(function(i,item){
