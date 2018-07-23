@@ -13,9 +13,17 @@ const client = new line.Client({
 exports.sendMessage = function(id, message) {
   return client.pushMessage(id, message)
   .then(() => {
-    //
   })
   .catch((err) => {
-    // error handling
+    console.log(err)
+  })
+}
+
+exports.sendMulticastMessage = function(idArray, message) {
+  return client.multicast(idArray, message)
+  .then(() => {
+  })
+  .catch((err) => {
+    console.log(err)
   })
 }

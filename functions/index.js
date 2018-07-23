@@ -35,11 +35,8 @@ exports.sendPttMessage = functions.https.onRequest((req, res) => {
     const timestamp = Math.floor(dateTime / 1000)
     crawler.getPttNewPost("CodeJob", timestamp)
     .then((list) => {
-        console.log(list)
         list.forEach(function(item) {
-            console.log(item)
-            chatbot.sendMessage('C7b6758598d699095093d3a4992062aa9', { type: 'text', text: `${item.title} \n https://www.ptt.cc${item.code}` })
-            chatbot.sendMessage('C0422a7d99f9f65d7e478d1a2667a8042', { type: 'text', text: `${item.title} \n https://www.ptt.cc${item.code}` })
+            chatbot.sendMulticastMessage(['C7b6758598d699095093d3a4992062aa9', 'C0422a7d99f9f65d7e478d1a2667a8042'], { type: 'text', text: `${item.title} \n https://www.ptt.cc${item.code}` })
         })
         res.status(200).send('HEHEHE')
     }).catch((error) => {
@@ -61,9 +58,7 @@ exports.sendNewPost = functions.https.onRequest((req, res) => {
                         if (messages.length) {
                             let promises = []
                             messages.forEach(function(message) {
-                                item.users.forEach((user) => {
-                                    promises.push(chatbot.sendMessage(user, message))
-                                })
+                                promises.push(chatbot.sendMulticastMessage(item.users, message))
                             })
                             Promise.all(promises).then(() => {
                                 console.log(item.account, 'finish')
