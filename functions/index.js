@@ -18,7 +18,7 @@ exports.checkIg = functions.https.onRequest((req, res) => {
     crawler.getNewPost('marcellasne_',timestamp)
     .then((messages) => {
         var promises = messages.map( function(message) {
-            return chatbot.sendMessage("U5ae6cc0b263a5fd8b5ef8fc7f2205e57", message)
+            return chatbot.sendMulticastMessage(["U5ae6cc0b263a5fd8b5ef8fc7f2205e57"], message)
         })
         Promise.all(promises).then((results) => {
             res.status(200).send('HEHEHE')
@@ -36,7 +36,8 @@ exports.sendPttMessage = functions.https.onRequest((req, res) => {
     crawler.getPttNewPost("CodeJob", timestamp)
     .then((list) => {
         list.forEach(function(item) {
-            chatbot.sendMulticastMessage(['C7b6758598d699095093d3a4992062aa9', 'C0422a7d99f9f65d7e478d1a2667a8042'], { type: 'text', text: `${item.title} \n https://www.ptt.cc${item.code}` })
+            chatbot.sendMessage('C7b6758598d699095093d3a4992062aa9', { type: 'text', text: `${item.title} \n https://www.ptt.cc${item.code}` })
+            chatbot.sendMessage('C0422a7d99f9f65d7e478d1a2667a8042', { type: 'text', text: `${item.title} \n https://www.ptt.cc${item.code}` })
         })
         res.status(200).send('HEHEHE')
     }).catch((error) => {
@@ -58,7 +59,9 @@ exports.sendNewPost = functions.https.onRequest((req, res) => {
                         if (messages.length) {
                             let promises = []
                             messages.forEach(function(message) {
-                                promises.push(chatbot.sendMulticastMessage(item.users, message))
+                                item.users.forEach((user) => {
+                                    promises.push(chatbot.sendMessage(user, message))
+                                })
                             })
                             Promise.all(promises).then(() => {
                                 console.log(item.account, 'finish')
